@@ -75,8 +75,8 @@ public class DataLoader {
 		};
 	}
 
-	public static void loadFromCsv(ResourceLoader resourceLoader, String sourceCsvFile,
-			Function<String[], Object> objectMapper, CrudRepository repo) {
+	public static <T> void loadFromCsv(ResourceLoader resourceLoader, String sourceCsvFile,
+			Function<String[], T> objectMapper, CrudRepository<T, ?> repo) {
 		logger.debug("++++++++++++++ Loading " + sourceCsvFile + " ..........");
 
 		Resource resource = resourceLoader.getResource("classpath:" + sourceCsvFile);
@@ -86,7 +86,7 @@ public class DataLoader {
 				logger.debug("++++++++++++++" + line);
 				try {
 					String[] values = line.split(",");
-					Object entity = objectMapper.apply(values);
+					T entity = objectMapper.apply(values);
 					repo.save(entity);
 				} catch (Exception e) {
 					e.printStackTrace();

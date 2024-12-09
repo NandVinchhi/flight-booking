@@ -3,6 +3,7 @@ package com.dxbair.services.flightbooking.booking;
 import java.util.List;
 
 import com.dxbair.services.flightbooking.domain.entity.FlightBooking;
+import com.dxbair.services.flightbooking.booking.model.BookingRequest;
 
 public interface BookingService {
 	
@@ -15,5 +16,11 @@ public interface BookingService {
 	List<FlightBooking> getAllMultiFlightBookings();
 	
 	void createSampleBookings();
+
+	FlightBooking createBooking(BookingRequest bookingRequest);
+
+	FlightBooking updateBooking(String bookingId, BookingRequest bookingRequest);
+
+	void deleteBooking(String bookingId);
 
 }

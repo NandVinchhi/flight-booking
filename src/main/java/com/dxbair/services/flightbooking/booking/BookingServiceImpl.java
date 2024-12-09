@@ -1,7 +1,5 @@
 package com.dxbair.services.flightbooking.booking;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -21,6 +19,9 @@ import com.dxbair.services.flightbooking.domain.entity.Passenger;
 import com.dxbair.services.flightbooking.domain.repo.FlightBookingRepository;
 import com.dxbair.services.flightbooking.domain.repo.FlightRepository;
 import com.dxbair.services.flightbooking.domain.repo.PassengerRepository;
+import com.dxbair.services.flightbooking.passenger.PassengerNotFoundException;
+import com.dxbair.services.flightbooking.flight.FlightNotFoundException;
+import com.dxbair.services.flightbooking.booking.model.BookingRequest;
 
 @Service
 @Transactional(readOnly = true)
@@ -120,28 +121,48 @@ public class BookingServiceImpl implements BookingService {
 		List<FlightBooking> bookings = bookingRepo.findByPassengerId(passengerId);
 		return bookings.stream().filter(booking -> booking.getFlights().size() > 1).collect(Collectors.toList());
 
-		/*
-		final List<FlightBooking> filteredList = new ArrayList<>();
-		if (CollectionUtils.isEmpty(bookings))
-			return Collections.EMPTY_LIST;
-		
-		bookings.stream().forEach(booking -> {
-			if(booking.getFlights().size() > 1) {
-				filteredList.add(booking);
-			}
-		});
-		
-		return filteredList;
-*/	}
+	}
+
+	@Override
+	public FlightBooking createBooking(BookingRequest bookingRequest) {
+		FlightBooking booking = new FlightBooking();
+		Passenger passenger = passengerRepo.findById(bookingRequest.getPassengerId())
+				.orElseThrow(() -> new PassengerNotFoundException(bookingRequest.getPassengerId()));
+		booking.setPassenger(passenger);
+		Set<Flight> flights = bookingRequest.getFlightIds().stream()
+				.map(flightId -> flightRepo.findById(flightId)
+						.orElseThrow(() -> new FlightNotFoundException(flightId)))
+				.collect(Collectors.toSet());
+		booking.setFlights(flights);
+		return bookingRepo.save(booking);
+	}
+
+	@Override
+	public FlightBooking updateBooking(String bookingId, BookingRequest bookingRequest) {
+		FlightBooking booking = bookingRepo.findById(bookingId)
+				.orElseThrow(() -> new BookingNotFoundException(bookingId));
+		Passenger passenger = passengerRepo.findById(bookingRequest.getPassengerId())
+				.orElseThrow(() -> new PassengerNotFoundException(bookingRequest.getPassengerId()));
+		booking.setPassenger(passenger);
+		Set<Flight> flights = bookingRequest.getFlightIds().stream()
+				.map(flightId -> flightRepo.findById(flightId)
+						.orElseThrow(() -> new FlightNotFoundException(flightId)))
+				.collect(Collectors.toSet());
+		booking.setFlights(flights);
+		return bookingRepo.save(booking);
+	}
+
+	@Override
+	public void deleteBooking(String bookingId) {
+		FlightBooking booking = bookingRepo.findById(bookingId)
+				.orElseThrow(() -> new BookingNotFoundException(bookingId));
+		bookingRepo.delete(booking);
+	}
 
 	@Override
 	public List<FlightBooking> getAllMultiFlightBookings() {
 		List<FlightBooking> bookings = bookingRepo.findAll();
-		
-		/*if (CollectionUtils.isEmpty(bookings))
-			return Collections.EMPTY_LIST;
-		
-		bookings.stream().forEach(action);*/
+
 		return bookings;
 	}
 
