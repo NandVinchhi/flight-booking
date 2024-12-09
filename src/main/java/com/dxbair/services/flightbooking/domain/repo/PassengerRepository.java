@@ -9,7 +9,9 @@ import com.dxbair.services.flightbooking.domain.entity.Passenger;
 
 @Transactional
 public interface PassengerRepository extends JpaRepository<Passenger, String> {
-	
+
 	Optional<Passenger> findByEmail(String email);
-	
+
+	Optional<Passenger> findById(String passengerId);
+
 }

@@ -26,4 +26,13 @@ public class PassengerServiceImpl implements PassengerService {
 		return passengerRepo.findAll();
 	}
 
+	@Override
+	public Passenger savePassenger(Passenger passenger) {
+		return passengerRepo.save(passenger);
+	}
+
+	@Override
+	public void deletePassenger(String passengerId) {
+		passengerRepo.deleteById(passengerId);
+	}
 }
