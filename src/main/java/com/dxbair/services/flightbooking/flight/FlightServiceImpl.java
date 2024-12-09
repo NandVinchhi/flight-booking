@@ -26,4 +26,30 @@ public class FlightServiceImpl implements FlightService {
 		return flightRepo.findAll();
 	}
 
+	@Override
+	@Transactional
+	public Flight createFlight(Flight flight) {
+		flight.setId(null); // Ensure we create a new flight
+		return flightRepo.save(flight);
+	}
+
+	@Override
+	@Transactional
+	public Flight updateFlight(String flightId, Flight flight) {
+		Flight existingFlight = getFlightById(flightId);
+		
+		existingFlight.setDeparture(flight.getDeparture());
+		existingFlight.setArrival(flight.getArrival());
+		existingFlight.setDepartureDate(flight.getDepartureDate());
+		existingFlight.setArrivalDate(flight.getArrivalDate());
+		
+		return flightRepo.save(existingFlight);
+	}
+
+	@Override
+	@Transactional
+	public void deleteFlight(String flightId) {
+		Flight flight = getFlightById(flightId);
+		flightRepo.delete(flight);
+	}
 }

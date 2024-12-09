@@ -9,4 +9,10 @@ public interface PassengerService {
 	Passenger getPassengerById(String passengerId);
 
 	List<Passenger> getAllPassengers();
+	
+	Passenger createPassenger(Passenger passenger);
+	
+	Passenger updatePassenger(String passengerId, Passenger passenger);
+	
+	void deletePassenger(String passengerId);
 }

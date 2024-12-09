@@ -9,4 +9,10 @@ public interface FlightService {
 	Flight getFlightById(String flightId);
 
 	List<Flight> getAllFlights();
+	
+	Flight createFlight(Flight flight);
+	
+	Flight updateFlight(String flightId, Flight flight);
+	
+	void deleteFlight(String flightId);
 }
