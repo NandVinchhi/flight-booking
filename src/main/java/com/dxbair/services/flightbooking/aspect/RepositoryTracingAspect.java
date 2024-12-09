@@ -14,46 +14,56 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RestController;
 
 @Aspect
 @Component
-public class TracingAspect {
+public class RepositoryTracingAspect {
 
     private final Tracer tracer;
 
     @Autowired
-    public TracingAspect(@Lazy OpenTelemetry openTelemetry) {
-        this.tracer = openTelemetry.getTracer(TracingAspect.class.getName());
+    public RepositoryTracingAspect(@Lazy OpenTelemetry openTelemetry) {
+        this.tracer = openTelemetry.getTracer(RepositoryTracingAspect.class.getName());
     }
 
-    @Pointcut("@within(org.springframework.web.bind.annotation.RestController)")
-    public void controllerPointcut() {
+    @Pointcut("within(@org.springframework.stereotype.Repository *)")
+    public void springRepositoryPointcut() {
     }
 
-    @Pointcut("within(com.dxbair.services.flightbooking..*) && !within(com.dxbair.services.flightbooking.config..*) && !within(com.dxbair.services.flightbooking.aspect..*)")
-    public void applicationPointcut() {
+    @Pointcut("execution(* org.springframework.data.repository.Repository+.*(..))")
+    public void repositoryMethodPointcut() {
     }
 
-    @Around("controllerPointcut() || applicationPointcut()")
-    public Object traceMethod(ProceedingJoinPoint joinPoint) throws Throwable {
+    @Around("springRepositoryPointcut() || repositoryMethodPointcut()")
+    public Object traceRepositoryMethod(ProceedingJoinPoint joinPoint) throws Throwable {
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
         String methodName = methodSignature.getName();
-        String className = methodSignature.getDeclaringType().getName();
 
-        SpanKind spanKind = joinPoint.getTarget().getClass().isAnnotationPresent(RestController.class)
-                ? SpanKind.SERVER
-                : SpanKind.INTERNAL;
+        // Get all interfaces implemented by the proxy
+        Class<?>[] interfaces = joinPoint.getTarget().getClass().getInterfaces();
+        // Find the custom repository interface (not the Spring Data ones)
+        String className = null;
+        for (Class<?> iface : interfaces) {
+            if (!iface.getName().startsWith("org.springframework")) {
+                className = iface.getName();
+                break;
+            }
+        }
+        // Fallback to the declaring type if no custom interface is found
+        if (className == null) {
+            className = methodSignature.getDeclaringType().getName();
+        }
 
         Span parentSpan = Span.current();
-        Span span = tracer.spanBuilder(className + "." + methodName)
+        Span span = tracer.spanBuilder("Repository." + className + "." + methodName)
                 .setParent(Context.current().with(parentSpan))
-                .setSpanKind(spanKind)
+                .setSpanKind(SpanKind.INTERNAL)
                 .startSpan();
 
         // Add the required attributes to the span
         span.setAttribute("method", methodName);
         span.setAttribute("class", className);
+        span.setAttribute("type", "repository");
         span.setAttribute("traceId", span.getSpanContext().getTraceId());
         span.setAttribute("spanId", span.getSpanContext().getSpanId());
         span.setAttribute("parentSpanId", parentSpan.getSpanContext().getSpanId());
