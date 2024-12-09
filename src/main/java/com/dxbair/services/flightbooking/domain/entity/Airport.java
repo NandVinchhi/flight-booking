@@ -1,7 +1,7 @@
 package com.dxbair.services.flightbooking.domain.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 
 @Entity
 public class Airport {
