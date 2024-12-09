@@ -26,29 +26,4 @@ public class PassengerServiceImpl implements PassengerService {
 		return passengerRepo.findAll();
 	}
 
-	@Override
-	@Transactional
-	public Passenger createPassenger(Passenger passenger) {
-		passenger.setId(null); // Ensure we create a new passenger
-		return passengerRepo.save(passenger);
-	}
-
-	@Override
-	@Transactional
-	public Passenger updatePassenger(String passengerId, Passenger passenger) {
-		Passenger existingPassenger = getPassengerById(passengerId);
-		
-		existingPassenger.setFirstName(passenger.getFirstName());
-		existingPassenger.setLastName(passenger.getLastName());
-		existingPassenger.setEmail(passenger.getEmail());
-		
-		return passengerRepo.save(existingPassenger);
-	}
-
-	@Override
-	@Transactional
-	public void deletePassenger(String passengerId) {
-		Passenger passenger = getPassengerById(passengerId);
-		passengerRepo.delete(passenger);
-	}
 }

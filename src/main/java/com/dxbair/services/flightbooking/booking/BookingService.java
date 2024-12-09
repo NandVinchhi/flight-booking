@@ -14,12 +14,6 @@ public interface BookingService {
 
 	List<FlightBooking> getAllMultiFlightBookings();
 	
-	FlightBooking createBooking(FlightBooking booking);
-	
-	FlightBooking updateBooking(String bookingId, FlightBooking booking);
-	
-	void deleteBooking(String bookingId);
-	
 	void createSampleBookings();
 
 }

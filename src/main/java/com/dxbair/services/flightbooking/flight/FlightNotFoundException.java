@@ -1,13 +1,13 @@
 package com.dxbair.services.flightbooking.flight;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import com.dxbair.services.flightbooking.system.ResourceNotFoundException;
 
-@ResponseStatus(HttpStatus.NOT_FOUND)
-public class FlightNotFoundException extends RuntimeException {
-	private static final long serialVersionUID = 1L;
+public class FlightNotFoundException extends ResourceNotFoundException {
+
+	private static final long serialVersionUID = 6293499259584600291L;
 
 	public FlightNotFoundException(String flightId) {
-		super("Could not find flight with id: " + flightId);
+		super("Flight", "flight-id", flightId);
 	}
+
 }
